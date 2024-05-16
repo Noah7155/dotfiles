@@ -9,6 +9,9 @@ cp ../config.h ./src/config.h
 make
 sudo cp afetch /bin/afetch
 cd ..
+yay -S zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search icons-in terminal exa
+touch ~/git-prompt.sh
+touch ~/git_stuff.sh
 
 # btop
 cp btop.conf ~/.config/btop/
