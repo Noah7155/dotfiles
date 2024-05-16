@@ -18,3 +18,4 @@ cp init.lua ~/.config/nvim/
 
 # Kitty
 cp kitty.conf ~/.config/kitty/
+cp current-theme.conf ~/.config/kitty/
