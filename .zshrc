@@ -290,4 +290,3 @@ alias communism="~/rust/communist/target/debug/communist "
 alias aafire="aafire -driver curses"
 alias lvim="/home/noah/.local/bin/lvim"
 
-source ~/lscolors.sh
