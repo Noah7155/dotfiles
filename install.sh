@@ -10,6 +10,11 @@ make
 sudo cp afetch /bin/afetch
 cd ..
 yay -S zsh-autosuggestions zsh-syntax-highlighting zsh-history-substring-search icons-in-terminal exa ttf-monoid-nerd
+git clone https://github.com/sebastiencs/icons-in-terminal
+cd icons-in-terminal
+./install-autodetect.sh
+./print_icons.sh
+cd ..
 touch ~/git-prompt.sh
 touch ~/git_stuff.sh
 
