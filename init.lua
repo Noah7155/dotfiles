@@ -42,7 +42,7 @@ Plug 'williamboman/mason.nvim'
 Plug 'williamboman/mason-lspconfig.nvim'
 
 -- themes --
-Plug 'Noah7155/doom-rouge.nvim'
+Plug 'Noah7155/cadmium.nvim'
 
 -- misc. cosmetic --
 Plug 'itchyny/lightline.vim'
@@ -82,6 +82,8 @@ vim.o.ignorecase = true
 vim.o.smartcase = true
 vim.o.completeopt = 'menu,menuone'
 vim.o.termguicolors = true
+vim.wo.relativenumber = true
+vim.wo.number = true
 nofoldenable = true
 foldlevel = 99
 vim.cmd[[ 
@@ -259,6 +261,6 @@ cmp.setup.cmdline(':', {
 -- COLORSCHEME --
 
 vim.cmd[[
-colorscheme doom-rouge
+colorscheme cadmium
+let g:Hexokinase_highlighters = ['backgroundfull']
 ]]
-
