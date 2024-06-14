@@ -17,250 +17,114 @@
 
 -- PLUGINS --
 
-local Plug = vim.fn['plug#']
+require('packer').startup(function(use)
+  use 'wbthomason/packer.nvim'
 
-vim.call('plug#begin', '~/.config/nvim/plugged')
+  use 'Noah7155/cadmium.nvim'
 
--- languages --
-Plug 'stevearc/vim-arduino'
-Plug 'ollykel/v-vim'
-Plug 'rust-lang/rust.vim'
+  use 'nvim-telescope/telescope.nvim'
+  use 'nvim-lua/plenary.nvim'
 
--- cmp --
-Plug 'hrsh7th/cmp-nvim-lsp'
-Plug 'hrsh7th/cmp-buffer'
-Plug 'hrsh7th/cmp-path'
-Plug 'hrsh7th/cmp-cmdline'
-Plug 'hrsh7th/nvim-cmp'
-Plug 'm4xshen/autoclose.nvim'
+  use 'itchyny/lightline.vim'
+  use('nvim-treesitter/nvim-treesitter', { run = ":TSUpdate" })
 
--- lsp --
-Plug 'neovim/nvim-lspconfig'
-Plug 'onsails/lspkind.nvim'
-Plug 'tami5/lspsaga.nvim'
-Plug 'williamboman/mason.nvim'
-Plug 'williamboman/mason-lspconfig.nvim'
+  use {
+  	'VonHeikemen/lsp-zero.nvim',
+  	branch = 'v3.x',
+  	requires = {
+  	  {'williamboman/mason.nvim'},
+  	  {'williamboman/mason-lspconfig.nvim'},
+  	  {'neovim/nvim-lspconfig'},
+  	  {'hrsh7th/nvim-cmp'},
+  	  {'hrsh7th/cmp-nvim-lsp'},
+  	  {'L3MON4D3/LuaSnip'},
+  	}
+}
+end)
 
--- themes --
-Plug 'Noah7155/cadmium.nvim'
+-- OPTIONS --
 
--- misc. cosmetic --
-Plug 'itchyny/lightline.vim'
-Plug 'mhinz/vim-startify'
-Plug 'RRethy/vim-hexokinase'
-
--- misc. utility --
-Plug 'scrooloose/nerdtree'
-Plug 'mbbill/undotree'
-Plug 'nvim-treesitter/nvim-treesitter'
-
-vim.call('plug#end')
-
--- KEY MAPPING --
-
-local keymap = function(mode, key, action)
-    vim.api.nvim_set_keymap(mode, key, action, { noremap = true, silent = true })
-end
-
-keymap('n', 'fd', 'zo')
-keymap('n', 'ff', 'zfa}')
-keymap('n', 'nt', ':NERDTreeToggle<CR>')
-keymap('n', 'tt', ':UndotreeToggle<CR>')
-
--- lsp --
-keymap('n', 'gd', '<cmd>lua vim.lsp.buf.definition()<CR>')
-keymap('n', 'gn', "<cmd>lua require('lspsaga.rename').rename()<CR>")
-keymap('n', 'gr', '<cmd>lua require("lspsaga.provider").lsp_finder()<CR>')
-keymap('n', 'ga', '<cmd>lua require("lspsaga.codeaction").code_action()<CR>')
-
--- VIM OPTIONS --
-
-vim.o.showmode = false
-vim.o.autowriteall = true
-vim.wo.number = true
-vim.o.ignorecase = true
-vim.o.smartcase = true
-vim.o.completeopt = 'menu,menuone'
-vim.o.termguicolors = true
 vim.wo.relativenumber = true
-vim.wo.number = true
-nofoldenable = true
-foldlevel = 99
-vim.cmd[[ 
-set tabstop=4 
-set shiftwidth=4 
-set expandtab 
-]]
+vim.g.lightline = {
+	colorscheme = 'wombat'
+}
+
+-- KEYBINDS --
+
+vim.g.mapleader = " "
+vim.keymap.set("n", "<leader>pv", vim.cmd.Ex)
+
+-- telescope --
+local builtin = require('telescope.builtin')
+vim.keymap.set('n', '<leader>ff', builtin.find_files, {})
+vim.keymap.set('n', '<leader>fg', builtin.live_grep, {})
+vim.keymap.set('n', '<leader>fb', builtin.buffers, {})
+vim.keymap.set('n', '<leader>fh', builtin.help_tags, {})
+
+-- HIGHLIGHTING --
+
+require'nvim-treesitter.configs'.setup {
+  ensure_installed = { "c", "lua", "vim", "vimdoc", "query", "rust", "python", "javascript" },
+  sync_install = false,
+  auto_install = true,
+  ignore_install = { "javascript" },
+  highlight = {
+    enable = true,
+    disable = {},
+    additional_vim_regex_highlighting = false,
+  },
+}
 
 -- LSP --
 
-require('lspconfig')
-require("mason").setup()
-require("mason-lspconfig").setup()
-local lsp_installer = ("mason-lspconfig")
+local lsp_zero = require('lsp-zero')
 
-require("mason-lspconfig").setup_handlers {
-        -- The first entry (without a key) will be the default handler
-        -- and will be called for each installed server that doesn't have
-        -- a dedicated handler.
-        function (server_name) -- default handler (optional)
-            require("lspconfig")[server_name].setup {}
-        end,
-}
+lsp_zero.on_attach(function(client, bufnr)
+  lsp_zero.default_keymaps({buffer = bufnr})
+end)
 
-require('lspsaga').setup({
-    error_sign = '',
-    warn_sign = '',
-    hint_sign = '',
-    infor_sign = '',
-    diagnostic_header_icon = '█',
-    code_action_prompt = {
-        enable = false
-    }
-})
-
-vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
-	virtual_text = {
-		prefix = "━",
-		spacing = 0,
-	},
-	signs = true,
-	underline = true,
-
-	-- set this to true if you want diagnostics to show in insert mode
-	update_in_insert = false,
-})
-
---require("lspsaga").init_lsp_saga({
---  finder_action_keys = {
---    open = '<CR>',
---    quit = {'q', '<esc>'},
---  },
---  code_action_keys = {
---    quit = {'q', '<esc>'},
---  },
---  rename_action_keys = {
---    quit = '<esc>',
---  },
---})
-
--- TREESITTER --
-
-require('nvim-treesitter.configs').setup {
-	ensure_installed = {"python", "rust", "c", "cpp", "bash", "go", "html"},
-	highlight = {
-		enable = true,
-	}
-}
-
-require('nvim-treesitter.configs').setup {
-  ensure_installed = {"python", "rust", "c", "cpp", "bash", "go", "html"},
-  highlight = {
-    enable = true,
-  },
-}
-
--- LIGHTLINE --
-
-vim.cmd[[
-let g:lightline = { 'colorscheme': 'wombat' }
-]]
-
--- CMP --
-
-require("autoclose").setup()
-
-local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require('cmp_nvim_lsp').default_capabilities()
-
-local lspkind = require('lspkind')
-local cmp = require("cmp")
-
-local has_words_before = function()
-  local line, col = unpack(vim.api.nvim_win_get_cursor(0))
-  return col ~= 0 and vim.api.nvim_buf_get_lines(0, line - 1, line, true)[1]:sub(col, col):match("%s") == nil
-end
-
-local feedkey = function(key, mode)
-  vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes(key, true, true, true), mode, true)
-end
-
-local cmp_kinds = {
-  Text = "",
-  Method = "",
-  Function = "",
-  Constructor = "",
-  Field = "ﰠ",
-  Variable = "",
-  Class = "ﴯ",
-  Interface = "",
-  Module = "",
-  Property = "ﰠ",
-  Unit = "塞",
-  Value = "",
-  Enum = "",
-  Keyword = "",
-  Snippet = "",
-  Color = "",
-  File = "",
-  Reference = "",
-  Folder = "",
-  EnumMember = "",
-  Constant = "",
-  Struct = "פּ",
-  Event = "",
-  Operator = "",
-  TypeParameter = "",
-}
-
-cmp.setup({
-  snippet = {
-    expand = function(args)
-      vim.fn["vsnip#anonymous"](args.body)
+lsp_zero.default_keymaps({})
+require('mason').setup({})
+require('mason-lspconfig').setup({
+  handlers = {
+    function(server_name)
+      require('lspconfig')[server_name].setup({})
     end,
-  },
-
-  mapping = {
-    ['<Up>'] = cmp.mapping.select_prev_item(),
-    ['<Down>'] = cmp.mapping.select_next_item(),
-    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
-    ['<C-Space>'] = cmp.mapping.complete(),
-    ['<C-e>'] = cmp.mapping.close(),
-    ['<Tab>'] = cmp.mapping.confirm {
-      behavior = cmp.ConfirmBehavior.Replace,
-      select = true,
-    },
-  },
-
-  formatting = {
-    format = lspkind.cmp_format(),
-  },
-
-  sources = {
-    { name = 'nvim_lsp' },
-    { name = 'vsnip' },
-    { name = 'buffer' },
-  },
-})
-
-cmp.setup.cmdline('/', {
-  sources = {
-    { name = 'buffer' }
   }
 })
 
-cmp.setup.cmdline(':', {
-  sources = cmp.config.sources({
-    { name = 'path' }
-  }, {
-    { name = 'cmdline' }
-  })
+require('lspconfig').rust_analyzer.setup({})
+local cmp = require('cmp')
+
+cmp.setup({
+  sources = {
+    {name = 'nvim_lsp'},
+  },
+  mapping = {
+    ['<TAB>'] = cmp.mapping.confirm({select = false}),
+    ['<C-q>'] = cmp.mapping.abort(),
+    ['<Up>'] = cmp.mapping.select_prev_item({behavior = 'select'}),
+    ['<Down>'] = cmp.mapping.select_next_item({behavior = 'select'}),
+    ['<C-p>'] = cmp.mapping(function()
+      if cmp.visible() then
+        cmp.select_prev_item({behavior = 'insert'})
+      else
+        cmp.complete()
+      end
+    end),
+    ['<C-n>'] = cmp.mapping(function()
+      if cmp.visible() then
+        cmp.select_next_item({behavior = 'insert'})
+      else
+        cmp.complete()
+      end
+    end),
+  },
+  snippet = {
+    expand = function(args)
+      require('luasnip').lsp_expand(args.body)
+    end,
+  },
 })
 
--- COLORSCHEME --
-
-vim.cmd[[
-colorscheme cadmium
-let g:Hexokinase_highlighters = ['backgroundfull']
-]]
+vim.cmd [[colorscheme cadmium]]
