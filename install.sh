@@ -1,6 +1,3 @@
-# Emacs
-cp .emacs ~/.emacs.d/.emacs
-
 # Fish
 mkdir -p ~/.config/fish/
 cp config.fish ~/.config/fish/
